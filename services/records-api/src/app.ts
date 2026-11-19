@@ -1,16 +1,13 @@
 import cors from '@fastify/cors';
 import Fastify, { type FastifyInstance } from 'fastify';
-import { MemoryAuditLog, PgAuditLog, type AuditLog } from './audit/audit.js';
+import { PgAuditLog, type AuditLog } from './audit/audit.js';
 import { authenticate, type TokenVerifier } from './auth/auth.js';
-import { createEntraVerifier, testVerifier } from './auth/entra-verifier.js';
+import { createEntraVerifier } from './auth/entra-verifier.js';
 import { createPool } from './db/pool.js';
 import { offeringsRoutes } from './offerings/offerings-routes.js';
-import { MemoryOfferingRepository } from './offerings/memory-repository.js';
 import { PgOfferingRepository } from './offerings/pg-repository.js';
 import type { OfferingRepository } from './offerings/repository.js';
 import { healthRoutes } from './routes/health.js';
-import { MemoryServiceTypeRepository } from './service-types/memory-repository.js';
-import { MemoryRequestRepository } from './service-types/memory-requests-repository.js';
 import { PgRequestRepository, PgServiceTypeRepository } from './service-types/pg-repository.js';
 import type { ServiceTypeRepository, ServiceTypeRequestRepository } from './service-types/repository.js';
 import { requestsRoutes } from './service-types/requests-routes.js';
@@ -31,12 +28,7 @@ function required(name: string): string {
 }
 
 export function defaultDeps(): AppDeps {
-  const isTest = process.env.NODE_ENV === 'test';
-  const verifier = isTest ? testVerifier : createEntraVerifier(required('ENTRA_TENANT_ID'), required('ENTRA_AUDIENCE'));
-  if (isTest && !process.env.DATABASE_URL) {
-    const serviceTypes = new MemoryServiceTypeRepository();
-    return { verifier, serviceTypes, requests: new MemoryRequestRepository(), offerings: new MemoryOfferingRepository(serviceTypes), audit: new MemoryAuditLog() };
-  }
+  const verifier = createEntraVerifier(required('ENTRA_TENANT_ID'), required('ENTRA_AUDIENCE'));
   const pool = createPool();
   return {
     verifier,

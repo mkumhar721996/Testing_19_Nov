@@ -16,12 +16,3 @@ export function createEntraVerifier(tenantId: string, audience: string): TokenVe
     },
   };
 }
-
-// Only used when NODE_ENV=test (Playwright API tests): "test-admin" and "test-provider" tokens.
-export const testVerifier: TokenVerifier = {
-  async verify(token) {
-    if (token === 'test-admin') return { id: 'admin-1', role: 'admin' };
-    if (token === 'test-provider') return { id: 'provider-1', role: 'provider' };
-    throw new Error('invalid token');
-  },
-};
