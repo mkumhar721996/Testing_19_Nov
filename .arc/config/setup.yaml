@@ -1,0 +1,34 @@
+components:
+  comp_records_api:
+    mode: local
+    e2e_command: cd services/records-api && pnpm e2e
+    test_command: cd services/records-api && pnpm test
+    build_command: cd services/records-api && pnpm build
+    start_command: cd services/records-api && HOST={host} PORT={port} pnpm exec tsx
+      src/server.ts
+    devloop_command: cd services/records-api && pnpm devloop
+    port_env: COMP_RECORDS_API_PORT
+    base_port: 8080
+    ready_check:
+      url: http://localhost:{port}/
+  comp_web_app:
+    mode: local
+    e2e_command: cd apps/web && pnpm e2e
+    test_command: cd apps/web && pnpm test
+    build_command: cd apps/web && pnpm build
+    start_command: cd apps/web && pnpm exec vite --host {host} --port {port} --strictPort
+    devloop_command: cd apps/web && pnpm devloop
+    port_env: COMP_WEB_APP_PORT
+    base_port: 5173
+    ready_check:
+      url: http://localhost:{port}/
+    primary: true
+commands:
+  test: (cd services/records-api && pnpm test) && (cd apps/web && pnpm test)
+  build: (cd services/records-api && pnpm build) && (cd apps/web && pnpm build)
+  devloop: (cd services/records-api && pnpm devloop) && (cd apps/web && pnpm devloop)
+setup_command: (cd apps/web && pnpm install --frozen-lockfile) && (cd services/records-api
+  && pnpm install --frozen-lockfile)
+toolchain:
+  node: '22'
+  pnpm: 12.9.1
