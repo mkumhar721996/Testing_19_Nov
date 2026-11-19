@@ -1,0 +1,72 @@
+version: 2
+components:
+  comp_web_app:
+    name: Web App
+    repo_ref: conn-github-32ebad80c69641869af2467b473acbcb
+    kind: web_ui
+    integrations:
+    - to: comp_records_api
+      interaction: sync
+      via: http
+      contract:
+        kind: openapi
+        path: openapi.yaml
+      auth:
+        scheme: jwt
+        idp: comp_identity_provider
+      status: planned
+      evidence: 'Human: ''Single REST API, no gateway'''
+    - to: comp_identity_provider
+      interaction: sync
+      via: http
+      auth:
+        scheme: oidc
+        idp: comp_identity_provider
+      status: planned
+      evidence: 'Human: ''Entra ID'' for sign-in'
+  comp_records_api:
+    name: Records API
+    repo_ref: conn-github-32ebad80c69641869af2467b473acbcb
+    kind: api_service
+    integrations:
+    - to: comp_relational_database
+      interaction: sync
+      status: planned
+      evidence: 'Human: API ''validates and stores data''; database is persistent
+        storage'
+    - to: comp_identity_provider
+      interaction: sync
+      via: http
+      auth:
+        scheme: jwt
+        idp: comp_identity_provider
+      status: planned
+      evidence: 'Human: API ''handles authentication and authorization''; Entra ID
+        chosen'
+    - to: external:email-provider
+      interaction: sync
+      via: http
+      status: planned
+      evidence: 'recommended default, accepted by the human without review: Amazon
+        SES (on AWS)'
+  comp_relational_database:
+    name: Relational Database
+    repo_ref: conn-github-32ebad80c69641869af2467b473acbcb
+    kind: managed_service
+  comp_identity_provider:
+    name: Identity Provider
+    repo_ref: conn-github-32ebad80c69641869af2467b473acbcb
+    kind: managed_service
+    identity:
+      provider: entra
+      hosting: managed
+      protocols:
+      - oidc
+      - oauth2
+      - jwt
+      flows:
+      - authorization_code_pkce
+      token: jwt
+      user_store: provider
+      notes: Protocols and flow proposed (OIDC, auth code + PKCE for the browser app);
+        not yet confirmed.
