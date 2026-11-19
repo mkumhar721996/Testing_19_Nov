@@ -2,5 +2,5 @@ import { test, expect } from '@playwright/test'
 
 test('home page renders heading', async ({ page }) => {
   await page.goto('/')
-  await expect(page.getByRole('heading', { name: 'Web App' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'My availability' })).toBeVisible()
 })

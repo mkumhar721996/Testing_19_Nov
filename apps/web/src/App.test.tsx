@@ -2,8 +2,14 @@ import { render, screen } from '@testing-library/react'
 import App from './App'
 
 describe('App', () => {
-  it('renders the heading', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn(() => new Promise(() => {})))
+  })
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('renders the availability page under Settings', () => {
     render(<App />)
-    expect(screen.getByRole('heading', { name: 'Web App' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'My availability' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Settings', hidden: true })).toHaveAttribute('aria-current', 'page')
   })
 })
