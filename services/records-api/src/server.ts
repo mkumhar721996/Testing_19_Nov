@@ -4,9 +4,12 @@ import { InMemoryAvailabilityStore } from './availability/memoryStore.js';
 import { PgAvailabilityStore } from './availability/pgStore.js';
 import type { Principal, ServiceCatalogPort } from './availability/types.js';
 import { createPool } from './db/pool.js';
+import { startUnpaidBookingSweeper } from './jobs/unpaid-booking-sweeper.js';
+import { systemClock } from './payments/clock.js';
 
 const host = process.env.HOST ?? '0.0.0.0';
 const port = Number(process.env.PORT ?? 8011);
+const sweepIntervalMs = Number(process.env.UNPAID_SWEEP_INTERVAL_MS ?? 60_000);
 
 function selectStore(): AppDeps['store'] {
   if (process.env.DATABASE_URL) return new PgAvailabilityStore(createPool(process.env.DATABASE_URL));
@@ -30,7 +33,15 @@ const catalog: ServiceCatalogPort = {
 };
 
 const app = buildApp({ store: selectStore(), catalog, authenticate });
-app.listen({ host, port }).catch((err) => {
-  app.log.error(err);
-  process.exit(1);
-});
+app
+  .listen({ host, port })
+  .then(() => {
+    const stop = startUnpaidBookingSweeper(app.paymentService, systemClock, sweepIntervalMs, (err) =>
+      app.log.error(err),
+    );
+    app.addHook('onClose', async () => stop());
+  })
+  .catch((err) => {
+    app.log.error(err);
+    process.exit(1);
+  });

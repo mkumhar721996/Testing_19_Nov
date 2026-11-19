@@ -17,6 +17,7 @@
     "devloop": "tsc --noEmit && vitest run"
   },
   "dependencies": {
+    "@aws-sdk/client-sesv2": "^3.1171.0",
     "@types/pg": "^8.23.1",
     "fastify": "^5.2.0",
     "pg": "^8.23.1"

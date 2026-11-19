@@ -29,7 +29,7 @@ export default function AppShell({ current, children }: { current: string; child
             <a
               key={item.id}
               className="shell-link"
-              href="#"
+              href={`#/${item.id}`}
               data-nav-key={item.id}
               aria-current={item.id === current ? 'page' : undefined}
             >
