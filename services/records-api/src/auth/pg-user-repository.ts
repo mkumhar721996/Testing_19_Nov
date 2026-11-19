@@ -8,10 +8,11 @@ interface UserRow {
   roles: string[];
   organization_id: string | null;
   organization_name: string | null;
+  identity_subject: string | null;
 }
 
 const SELECT_USER = `
-  SELECT u.id, u.email, u.display_name, u.organization_id, o.name AS organization_name,
+  SELECT u.id, u.email, u.display_name, u.organization_id, u.identity_subject, o.name AS organization_name,
          COALESCE(array_agg(r.role) FILTER (WHERE r.role IS NOT NULL), '{}') AS roles
   FROM users u
   LEFT JOIN organizations o ON o.id = u.organization_id
@@ -25,6 +26,7 @@ function toRecord(row: UserRow): UserRecord {
     email: row.email,
     displayName: row.display_name,
     roles: row.roles,
+    identitySubject: row.identity_subject,
     organization:
       row.organization_id && row.organization_name
         ? { id: row.organization_id, name: row.organization_name }
@@ -38,6 +40,14 @@ export function createPgUserRepository(pool: Pool): UserRepository {
     return rows[0] ? toRecord(rows[0]) : null;
   }
   return {
+    findBySubject: (subject) => one('u.identity_subject = $1', subject),
+    async linkSubject(userId, subject) {
+      const res = await pool.query(
+        'UPDATE users SET identity_subject = $2 WHERE id::text = $1 AND identity_subject IS NULL',
+        [userId, subject],
+      );
+      return (res.rowCount ?? 0) === 1;
+    },
     findByEmail: (email) => one('lower(u.email) = lower($1)', email),
     findById: (id) => one('u.id::text = $1', id),
   };

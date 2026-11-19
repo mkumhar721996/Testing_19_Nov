@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildTestApp } from './helpers.js';
+import { buildTestApp, makeUser, seededUsers } from './helpers.js';
 
 describe('POST /auth/sign-in', () => {
   it('signs in with valid credentials and the token opens /me', async () => {
@@ -81,6 +81,41 @@ describe('POST /auth/sign-in', () => {
     expect(res.statusCode).toBe(403);
     expect(res.json().token).toBeUndefined();
     expect(res.json().code).toBe('multiple_roles');
+    await app.close();
+  });
+
+  it('rejects an email already bound to a different subject', async () => {
+    const bound = { ...makeUser('admin', ['wfc_admin']), identitySubject: 'someone-else' };
+    const { app, signIn } = buildTestApp([bound]);
+    const res = await signIn('admin@test');
+    expect(res.statusCode).toBe(401);
+    expect(res.json().code).toBe('invalid_credentials');
+    await app.close();
+  });
+
+  it('signs in by subject even when the email claim has changed', async () => {
+    const bound = { ...makeUser('admin', ['wfc_admin']), identitySubject: 'sub-new@test' };
+    const { app, signIn } = buildTestApp([bound]);
+    expect((await signIn('new@test')).statusCode).toBe(200);
+    await app.close();
+  });
+
+  it('throttles repeated attempts for one email', async () => {
+    const { app, signIn } = buildTestApp(seededUsers, { perEmail: 3 });
+    for (let i = 0; i < 3; i++) expect((await signIn('admin@test', 'wrong')).statusCode).toBe(401);
+    const res = await signIn('admin@test');
+    expect(res.statusCode).toBe(429);
+    expect(res.json().code).toBe('too_many_attempts');
+    expect(Number(res.headers['retry-after'])).toBeGreaterThan(0);
+    expect((await signIn('org_admin@test')).statusCode).toBe(200);
+    await app.close();
+  });
+
+  it('throttles repeated attempts from one IP', async () => {
+    const { app, signIn } = buildTestApp(seededUsers, { perIp: 2 });
+    await signIn('a@test', 'wrong');
+    await signIn('b@test', 'wrong');
+    expect((await signIn('admin@test')).statusCode).toBe(429);
     await app.close();
   });
 
