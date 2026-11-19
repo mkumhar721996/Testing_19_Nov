@@ -1,0 +1,20 @@
+.shell { display: flex; flex-direction: column; min-height: 100vh; min-width: 0; }
+.shell-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); padding: var(--space-2) var(--space-3); background: var(--color-bg); border-bottom: var(--border-width) solid var(--color-border); }
+.shell-brand { display: inline-flex; align-items: center; min-height: var(--tap-target, 2.75rem); min-width: var(--tap-target, 2.75rem); font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); color: var(--color-fg); text-decoration: none; }
+.btn.shell-toggle { display: inline-flex; min-height: var(--tap-target, 2.75rem); min-width: var(--tap-target, 2.75rem); }
+.shell-nav { flex-basis: 100%; display: flex; flex-direction: column; gap: var(--space-1); }
+.shell-nav[hidden] { display: none; }
+.shell-link { display: flex; align-items: center; min-height: var(--tap-target, 2.75rem); padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); color: var(--color-fg); font-weight: var(--font-weight-medium); text-decoration: none; }
+.shell-link:hover { background: var(--color-bg-subtle); }
+.shell-link[aria-current="page"] { background: var(--color-info-bg); color: var(--color-info-fg); }
+.shell-link:focus-visible { outline: var(--border-width-strong) solid var(--color-primary-hover); outline-offset: var(--border-width-strong); }
+.shell-main { flex: 1; width: 100%; max-width: var(--content-max-width); min-width: 0; margin-inline: auto; padding: var(--space-4) var(--space-3); }
+.shell-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-2); padding: var(--space-3); border-top: var(--border-width) solid var(--color-border); background: var(--color-bg-subtle); color: var(--color-fg-muted); font-size: var(--font-size-sm); }
+.shell-footer-links { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.shell-footer-links a { display: inline-flex; align-items: center; min-height: var(--tap-target, 2.75rem); min-width: var(--tap-target, 2.75rem); }
+.shell-footer > span { display: inline-flex; align-items: center; min-height: var(--tap-target, 2.75rem); }
+@media (min-width: 48em) {
+  .shell-toggle { display: none; }
+  .shell-nav, .shell-nav[hidden] { display: flex; flex-direction: row; flex-basis: auto; align-items: center; gap: var(--space-1); }
+  .shell-header { flex-wrap: nowrap; padding-inline: var(--space-4); }
+}

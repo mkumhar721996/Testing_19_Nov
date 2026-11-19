@@ -4,6 +4,38 @@ info:
   title: Records API (comp_records_api)
   version: 0.1.0
 components:
+  schemas:
+    ServiceTypeName:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 80 }
+    ServiceType:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+    AdminServiceType:
+      type: object
+      required: [id, name, status, providersStillOffering]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        status: { type: string, enum: [offered, retired] }
+        providersStillOffering: { type: integer }
+    ProviderOffering:
+      type: object
+      required: [serviceType, price, typeStatus]
+      properties:
+        serviceType: { type: string }
+        price:
+          type: object
+          required: [amount, unit]
+          properties:
+            amount: { type: string, example: '55.00' }
+            unit: { type: string, enum: [per hour, fixed] }
+        typeStatus: { type: string, enum: [offered, retired] }
   securitySchemes:
     bearerAuth:
       type: http
@@ -28,3 +60,114 @@ paths:
                   status:
                     type: string
                     example: ok
+  /service-types:
+    get:
+      summary: Service types providers can choose from (retired types left out)
+      responses:
+        '200':
+          description: Offered service types
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ServiceType' }
+        '401': { description: Not signed in }
+  /admin/service-types:
+    get:
+      summary: All service types, including retired ones (admin only)
+      responses:
+        '200':
+          description: Every service type
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/AdminServiceType' }
+        '401': { description: Not signed in }
+        '403': { description: Caller is not an admin }
+    post:
+      summary: Add a service type (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ServiceTypeName' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AdminServiceType' }
+        '400': { description: Name blank or longer than 80 characters }
+        '401': { description: Not signed in }
+        '403': { description: Caller is not an admin }
+        '409': { description: A service type with this name already exists }
+  /admin/service-types/{id}:
+    patch:
+      summary: Rename a service type (admin only)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ServiceTypeName' }
+      responses:
+        '200':
+          description: Renamed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AdminServiceType' }
+        '400': { description: Name blank or longer than 80 characters }
+        '401': { description: Not signed in }
+        '403': { description: Caller is not an admin }
+        '404': { description: Service type not found }
+        '409': { description: A service type with this name already exists }
+  /admin/service-types/{id}/retire:
+    post:
+      summary: Retire a service type (admin only; idempotent, offerings keep it)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Retired
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AdminServiceType' }
+        '401': { description: Not signed in }
+        '403': { description: Caller is not an admin }
+        '404': { description: Service type not found }
+  /service-type-requests:
+    post:
+      summary: Ask an admin to add a missing service type (provider only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ServiceTypeName' }
+      responses:
+        '201':
+          description: Request sent to an admin
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [requested]
+                properties:
+                  requested: { type: boolean, example: true }
+        '400': { description: Name blank or longer than 80 characters }
+        '401': { description: Not signed in }
+        '403': { description: Caller is not a provider }
+  /provider/offerings:
+    get:
+      summary: The provider's own offerings, including those whose type is retired
+      responses:
+        '200':
+          description: Offerings
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ProviderOffering' }
+        '401': { description: Not signed in }
+        '403': { description: Caller is not a provider }
