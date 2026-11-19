@@ -1,0 +1,48 @@
+.consultant {
+  border-top: var(--border-width) solid var(--color-border);
+  padding-top: var(--space-3);
+  margin-top: var(--space-3);
+  overflow-wrap: anywhere;
+}
+
+.consultant-heading {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  margin: 0 0 var(--space-2);
+}
+
+.consultant-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.consultant-list dt {
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.consultant-list dd {
+  margin: var(--space-1) 0 0;
+}
+
+.consultant-name {
+  font-weight: var(--font-weight-medium);
+}
+
+.consultant-muted {
+  color: var(--color-fg-muted);
+  margin: 0;
+}
+
+.consultant-link {
+  color: var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target);
+}
+
+.consultant-link:focus-visible {
+  outline: var(--border-width-strong) solid var(--color-primary-hover);
+}
