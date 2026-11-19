@@ -6,8 +6,8 @@ export default defineConfig({
   testDir: 'test/e2e',
   use: { baseURL: `http://127.0.0.1:${port}` },
   webServer: {
-    command: `pnpm build && node dist/server.js`,
-    env: { HOST: '127.0.0.1', PORT: String(port) },
+    command: `pnpm build && (test -z "$DATABASE_URL" || (pnpm db:migrate && pnpm db:seed)) && node dist/server.js`,
+    env: { HOST: '127.0.0.1', PORT: String(port), NODE_ENV: 'test' },
     url: `http://127.0.0.1:${port}/health`,
     reuseExistingServer: false,
     timeout: 120_000,
