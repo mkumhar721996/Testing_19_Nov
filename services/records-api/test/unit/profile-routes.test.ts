@@ -8,17 +8,23 @@ const admin = { 'x-actor-id': 'a1', 'x-actor-role': 'admin' };
 const providerActor: Actor = { id: 'p1', role: 'provider' };
 const png = (fileName: string): StoredFile => ({ fileName, contentType: 'image/png', size: 3, data: Buffer.from('png') });
 
-function multipart(fields: Record<string, string>, file?: { name: string; field: string; type: string }) {
+const MAGIC: Record<string, string> = {
+  'application/pdf': '%PDF-1.4 content',
+  'image/png': '\x89PNG\r\n\x1a\n content',
+  'image/jpeg': '\xff\xd8\xff content',
+};
+
+function multipart(fields: Record<string, string>, file?: { name: string; field: string; type: string; content?: string }) {
   const boundary = 'testboundary';
   let body = '';
   for (const [k, v] of Object.entries(fields)) {
     body += `--${boundary}\r\nContent-Disposition: form-data; name="${k}"\r\n\r\n${v}\r\n`;
   }
   if (file) {
-    body += `--${boundary}\r\nContent-Disposition: form-data; name="${file.field}"; filename="${file.name}"\r\nContent-Type: ${file.type}\r\n\r\ncontent\r\n`;
+    body += `--${boundary}\r\nContent-Disposition: form-data; name="${file.field}"; filename="${file.name}"\r\nContent-Type: ${file.type}\r\n\r\n${file.content ?? MAGIC[file.type] ?? 'content'}\r\n`;
   }
   body += `--${boundary}--\r\n`;
-  return { payload: body, headers: { 'content-type': `multipart/form-data; boundary=${boundary}` } };
+  return { payload: Buffer.from(body, 'latin1'), headers: { 'content-type': `multipart/form-data; boundary=${boundary}` } };
 }
 
 describe('profile routes', () => {
@@ -69,6 +75,39 @@ describe('profile routes', () => {
     const bad = await upload('/me/documents', multipart({ type: 'licence' }, { name: 'scan.tiff', field: 'file', type: 'image/tiff' }));
     expect(bad.statusCode).toBe(400);
     expect(bad.json().message).toContain('is not a supported file');
+  });
+
+  it('rejects a file whose content does not match its declared type', async () => {
+    const spoof = await upload(
+      '/me/documents',
+      multipart({ type: 'licence' }, { name: 'x.pdf', field: 'file', type: 'application/pdf', content: '<script>alert(1)</script>' }),
+    );
+    expect(spoof.statusCode).toBe(400);
+    expect(spoof.json().message).toContain('is not a supported file');
+    const photo = await upload(
+      '/me/profile/submissions',
+      multipart({}, { name: 'x.png', field: 'photo', type: 'image/png', content: '<html></html>' }),
+    );
+    expect(photo.statusCode).toBe(400);
+  });
+
+  it('answers an oversize upload with the friendly 400 message', async () => {
+    const big = 'x'.repeat(5 * 1024 * 1024 + 10);
+    const res = await upload(
+      '/me/profile/submissions',
+      multipart({}, { name: 'big.png', field: 'photo', type: 'image/png', content: `\x89PNG\r\n\x1a\n${big}` }),
+    );
+    expect(res.statusCode).toBe(400);
+    expect(res.json().message).toContain('is too large');
+  });
+
+  it('serves files with nosniff, and documents as attachments', async () => {
+    store.putDocument('p1', 'licence', { ...png('l.pdf'), contentType: 'application/pdf' }, providerActor);
+    const doc = await get('/admin/providers/p1/documents/licence', admin);
+    expect(doc.headers['x-content-type-options']).toBe('nosniff');
+    expect(doc.headers['content-disposition']).toMatch(/^attachment/);
+    const photo = await get('/providers/p1/photo');
+    expect(photo.headers['x-content-type-options']).toBe('nosniff');
   });
 
   it('AC5 customers keep the previous bio while a submission is pending', async () => {

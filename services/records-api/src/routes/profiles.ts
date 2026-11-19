@@ -11,6 +11,16 @@ const PHOTO_TYPES = ['image/jpeg', 'image/png'];
 const DOC_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
 const DOC_KINDS: DocType[] = ['licence', 'insurance'];
 
+const SIGNATURES: Record<string, number[]> = {
+  'application/pdf': [0x25, 0x50, 0x44, 0x46],
+  'image/png': [0x89, 0x50, 0x4e, 0x47],
+  'image/jpeg': [0xff, 0xd8, 0xff],
+};
+
+/** The declared type is client-supplied, so confirm the leading bytes agree with it. */
+const matchesSignature = (type: string, data: Buffer) =>
+  SIGNATURES[type]?.every((byte, i) => data[i] === byte) ?? false;
+
 type Parsed = { fields: Record<string, string>; file?: StoredFile; error?: string };
 
 async function parseUpload(
@@ -30,7 +40,7 @@ async function parseUpload(
     }
     const data = await part.toBuffer();
     if (part.fieldname !== fileField || (!data.length && !part.filename)) continue;
-    if (!allowed.includes(part.mimetype)) {
+    if (!allowed.includes(part.mimetype) || !matchesSignature(part.mimetype, data)) {
       error = `${part.filename} is not a supported file. Upload a ${allowedLabel} file.`;
     } else if (part.file.truncated) {
       error = `${part.filename} is too large. Upload a file of ${maxBytes / MB} MB or less.`;
@@ -51,11 +61,15 @@ const docMeta = (type: string, d: StoredFile & { uploadedAt: string }) => ({
   status: 'awaiting-review' as const,
 });
 
-const sendFile = (reply: FastifyReply, f: StoredFile | undefined) =>
-  f ? reply.type(f.contentType).send(f.data) : reply.code(404).send({ message: 'File not found.' });
+const sendFile = (reply: FastifyReply, f: StoredFile | undefined, asAttachment = false) => {
+  if (!f) return reply.code(404).send({ message: 'File not found.' });
+  reply.type(f.contentType).header('x-content-type-options', 'nosniff');
+  if (asAttachment) reply.header('content-disposition', 'attachment');
+  return reply.send(f.data);
+};
 
 export const profileRoutes: FastifyPluginAsync<{ store: ProfileStore }> = async (app, { store }) => {
-  await app.register(multipart);
+  await app.register(multipart, { throwFileSizeLimit: false });
 
   app.setErrorHandler((err, _req, reply) => {
     if (err instanceof NotFoundError) return reply.code(404).send({ message: err.message });
@@ -151,11 +165,11 @@ export const profileRoutes: FastifyPluginAsync<{ store: ProfileStore }> = async 
   });
 
   app.get<{ Params: { id: string; type: string } }>('/admin/providers/:id/documents/:type', admin, async (req, reply) =>
-    sendFile(reply, store.getProfile(req.params.id)?.documents[req.params.type as DocType]),
+    sendFile(reply, store.getProfile(req.params.id)?.documents[req.params.type as DocType], true),
   );
 
   app.get<{ Params: { id: string } }>('/admin/providers/:id/submission/photo', admin, async (req, reply) =>
-    sendFile(reply, store.getProfile(req.params.id)?.pending?.photo),
+    sendFile(reply, store.getProfile(req.params.id)?.pending?.photo, true),
   );
 
   for (const decision of ['approve', 'reject'] as const) {
