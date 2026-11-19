@@ -1,0 +1,95 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --color-fg: #1f2937; /** Default text colour; AA on color-bg. */
+  --color-fg-muted: #4b5563; /** Secondary text, hints. */
+  --color-bg: #ffffff; /** Page and surface background. */
+  --color-bg-subtle: #f3f4f6; /** Quiet fills: hover, disabled, skeleton, table header. */
+  --color-border: #d1d5db; /** Decorative borders and dividers. */
+  --color-border-strong: #6b7280; /** Borders of interactive controls. */
+  --color-primary: #2563eb; /** Brand and primary action colour. */
+  --color-primary-hover: #1d4ed8; /** Primary hover and focus ring. */
+  --color-on-primary: #ffffff; /** Text on primary fills. */
+  --color-danger: #b91c1c; /** Destructive actions and errors. */
+  --color-danger-hover: #991b1b; /** Danger hover and danger text on tinted fill. */
+  --color-on-danger: #ffffff; /** Text on danger fills. */
+  --color-danger-bg: #fee2e2; /** Tinted danger surface. */
+  --color-success-fg: #166534; /** Success text and border. */
+  --color-success-bg: #dcfce7; /** Tinted success surface. */
+  --color-warning-fg: #854d0e; /** Warning text and border. */
+  --color-warning-bg: #fef9c3; /** Tinted warning surface. */
+  --color-info-fg: #1e40af; /** Info text and border. */
+  --color-info-bg: #dbeafe; /** Tinted info surface. */
+  --space-1: 4px; /** Tight gaps. */
+  --space-2: 8px; /** Default small gap. */
+  --space-3: 16px; /** Default gap and card padding. */
+  --space-4: 24px; /** Section gap. */
+  --space-5: 32px; /** Large section gap. */
+  --space-6: 48px; /** Page-level spacing. */
+  --radius-sm: 4px; /** Chips, checkboxes, tooltips. */
+  --radius-md: 8px; /** Buttons and inputs. */
+  --radius-lg: 12px; /** Cards, modals, drawers. */
+  --radius-full: 999px; /** Pills and circles. */
+  --font-size-sm: 0.875rem; /** Hints, badges, table cells. */
+  --font-size-md: 1rem; /** Body text. */
+  --font-size-lg: 1.25rem; /** Section headings. */
+  --font-size-xl: 1.5rem; /** Page titles. */
+  --border-width: 1px; /** Default border. */
+  --border-width-strong: 2px; /** Focus ring, selected tab, spinner. */
+  --control-height-sm: 32px; /** Small button height. */
+  --control-height: 40px; /** Default control height. */
+  --control-height-lg: 48px; /** Large button height. */
+  --check-size: 18px; /** Checkbox and radio size. */
+  --switch-width: 40px; /** Switch track width. */
+  --switch-height: 22px; /** Switch track height. */
+  --switch-thumb: 16px; /** Switch thumb size. */
+  --avatar-size: 40px; /** Avatar diameter. */
+  --spinner-size: 24px; /** Spinner diameter. */
+  --skeleton-height: 16px; /** Skeleton line height. */
+  --menu-min-width: 200px; /** Menu and dropdown width. */
+  --modal-width: 480px; /** Modal max width. */
+  --drawer-width: 360px; /** Drawer width. */
+  --toast-width: 320px; /** Toast max width. */
+  --tooltip-max-width: 240px; /** Tooltip max width. */
+  --grid-min: 240px; /** Minimum column width of .grid. */
+  --content-max-width: 1200px; /** Max width of page content. */
+  --sample-frame-height: 320px; /** Height of overlay sample frames in the style guide. */
+  --font-family-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; /** UI text. */
+  --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; /** Identifiers and code. */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+  --line-height-base: 1.5; /** Body line height. */
+  --line-height-tight: 1.25; /** Headings and controls. */
+  --opacity-disabled: 0.5; /** Disabled controls. */
+  --opacity-backdrop: 0.5; /** Backdrop behind modals. */
+  --motion-spin: 0.8; /** Seconds per spinner turn. */
+  --z-dropdown: 10;
+  --z-backdrop: 20;
+  --z-overlay: 30;
+  --tap-target: 44px; /** Minimum touch target for shell links and buttons. */
+  --button-primary-background: var(--color-primary);
+  --button-primary-background-hover: var(--color-primary-hover);
+  --button-primary-color: var(--color-on-primary);
+  --button-primary-border: var(--color-primary);
+  --button-secondary-background: var(--color-bg);
+  --button-secondary-background-hover: var(--color-bg-subtle);
+  --button-secondary-color: var(--color-fg);
+  --button-secondary-border: var(--color-border-strong);
+  --button-ghost-background-hover: var(--color-bg-subtle);
+  --button-ghost-color: var(--color-primary);
+  --button-danger-background: var(--color-danger);
+  --button-danger-background-hover: var(--color-danger-hover);
+  --button-danger-color: var(--color-on-danger);
+  --button-danger-border: var(--color-danger);
+  --button-default-radius: var(--radius-md);
+  --button-default-height: var(--control-height);
+  --button-default-padding-x: var(--space-3);
+  --card-default-background: var(--color-bg);
+  --card-default-border: var(--color-border);
+  --card-default-color: var(--color-fg);
+  --card-default-radius: var(--radius-lg);
+  --card-default-padding: var(--space-3);
+}
