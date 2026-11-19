@@ -4,6 +4,7 @@ components:
     name: Web App
     repo_ref: conn-github-32ebad80c69641869af2467b473acbcb
     kind: web_ui
+    directory: apps/web
     integrations:
     - to: comp_records_api
       interaction: sync
@@ -24,13 +25,24 @@ components:
         idp: comp_identity_provider
       status: planned
       evidence: 'Human: ''Entra ID'' for sign-in'
+    stack:
+      choices:
+        styling: tailwind
+        language: typescript
+        framework: react + vite
+        package_manager: pnpm
+        testing_tool_e2e: playwright
+        testing_tool_unit: vitest
+      notes: database not applicable — talks to data only through the Records API
   comp_records_api:
     name: Records API
     repo_ref: conn-github-32ebad80c69641869af2467b473acbcb
     kind: api_service
+    directory: services/records-api
     integrations:
     - to: comp_relational_database
       interaction: sync
+      via: postgresql
       status: planned
       evidence: 'Human: API ''validates and stores data''; database is persistent
         storage'
@@ -49,10 +61,22 @@ components:
       status: planned
       evidence: 'recommended default, accepted by the human without review: Amazon
         SES (on AWS)'
+    stack:
+      choices:
+        database: postgresql
+        language: typescript
+        framework: fastify
+        package_manager: pnpm
+        testing_tool_e2e: playwright
+        testing_tool_unit: vitest
+      notes: styling not applicable — API only; e2e via Playwright API tests
   comp_relational_database:
     name: Relational Database
     repo_ref: conn-github-32ebad80c69641869af2467b473acbcb
     kind: managed_service
+    stack:
+      choices:
+        managed_service: PostgreSQL on Amazon RDS (Multi-AZ)
   comp_identity_provider:
     name: Identity Provider
     repo_ref: conn-github-32ebad80c69641869af2467b473acbcb
@@ -70,3 +94,6 @@ components:
       user_store: provider
       notes: Protocols and flow proposed (OIDC, auth code + PKCE for the browser app);
         not yet confirmed.
+    stack:
+      choices:
+        managed_service: Microsoft Entra ID
