@@ -11,6 +11,16 @@ components:
       required: true
       schema:
         type: string
+    Weekday:
+      name: weekday
+      in: path
+      required: true
+      schema: { type: integer, minimum: 1, maximum: 7 }
+    DayOffDate:
+      name: date
+      in: path
+      required: true
+      schema: { type: string, format: date }
   responses:
     Error:
       description: Error
@@ -85,6 +95,39 @@ components:
           type: string
           format: date-time
           nullable: true
+    WorkingHours:
+      type: object
+      required: [weekday, start, end]
+      properties:
+        weekday: { type: integer, minimum: 1, maximum: 7, description: 'ISO weekday, 1 = Monday' }
+        start: { type: string, example: '09:00', description: 'HH:MM, provider-local' }
+        end: { type: string, example: '17:00', description: 'HH:MM, provider-local' }
+    Availability:
+      type: object
+      required: [providerId, timeZone, hours, daysOff]
+      properties:
+        providerId: { type: string, description: Used to request this provider's customer slots }
+        timeZone: { type: string, nullable: true, example: Europe/London }
+        hours:
+          type: array
+          items: { $ref: '#/components/schemas/WorkingHours' }
+        daysOff:
+          type: array
+          items: { type: string, format: date }
+    Slot:
+      type: object
+      required: [start, end, localStart, localEnd]
+      properties:
+        start: { type: string, format: date-time, description: UTC instant }
+        end: { type: string, format: date-time, description: UTC instant }
+        localStart: { type: string, example: '09:00', description: Provider-zone wall time }
+        localEnd: { type: string, example: '10:00', description: Provider-zone wall time }
+    FieldErrors:
+      type: object
+      properties:
+        errors:
+          type: object
+          additionalProperties: { type: string }
   securitySchemes:
     bearerAuth:
       type: http
@@ -186,6 +229,142 @@ paths:
           $ref: '#/components/responses/Error'
         '410':
           $ref: '#/components/responses/Error'
+  /providers/me/availability:
+    get:
+      summary: The signed-in provider's weekly hours and days off
+      responses:
+        '200':
+          description: Saved availability
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Availability' }
+        '401': { description: Not signed in }
+  /providers/me/availability/time-zone:
+    put:
+      summary: Set the provider's IANA time zone
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [timeZone]
+              properties:
+                timeZone: { type: string }
+      responses:
+        '204': { description: Saved }
+        '400':
+          description: Not an IANA time zone
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FieldErrors' }
+        '401': { description: Not signed in }
+  /providers/me/availability/hours:
+    post:
+      summary: Add the working-hours block for a weekday (one block per weekday)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/WorkingHours' }
+      responses:
+        '201': { description: Created }
+        '400':
+          description: Invalid times; the end-time message is under errors.end
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FieldErrors' }
+        '401': { description: Not signed in }
+        '409':
+          description: The weekday already has a block; the original is unchanged
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error: { type: string, example: hours_exist }
+  /providers/me/availability/hours/{weekday}:
+    parameters:
+      - $ref: '#/components/parameters/Weekday'
+    put:
+      summary: Change the existing block for a weekday
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [start, end]
+              properties:
+                start: { type: string }
+                end: { type: string }
+      responses:
+        '200': { description: Updated }
+        '400':
+          description: Invalid times
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FieldErrors' }
+        '401': { description: Not signed in }
+        '404': { description: No block for that weekday }
+    delete:
+      summary: Remove the block for a weekday
+      responses:
+        '204': { description: Removed }
+        '401': { description: Not signed in }
+  /providers/me/availability/days-off:
+    post:
+      summary: Mark a provider-local date as a day off
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [date]
+              properties:
+                date: { type: string, format: date }
+      responses:
+        '201': { description: Marked (idempotent) }
+        '400':
+          description: Not a valid date
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FieldErrors' }
+        '401': { description: Not signed in }
+  /providers/me/availability/days-off/{date}:
+    parameters:
+      - $ref: '#/components/parameters/DayOffDate'
+    delete:
+      summary: Remove a day off
+      responses:
+        '204': { description: Removed }
+        '401': { description: Not signed in }
+  /providers/{providerId}/availability/slots:
+    get:
+      summary: Bookable slots for a provider on a provider-local date
+      security: []
+      parameters:
+        - { name: providerId, in: path, required: true, schema: { type: string } }
+        - { name: date, in: query, required: true, schema: { type: string, format: date } }
+        - { name: serviceId, in: query, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Slots, each exactly the service duration, within the weekday's hours
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [date, timeZone, durationMinutes, slots]
+                properties:
+                  date: { type: string, format: date }
+                  timeZone: { type: string, nullable: true }
+                  durationMinutes: { type: integer }
+                  slots:
+                    type: array
+                    items: { $ref: '#/components/schemas/Slot' }
+        '400': { description: Bad date or missing service }
+        '404': { description: Unknown service }
   /health:
     get:
       summary: Liveness check

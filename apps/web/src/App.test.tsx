@@ -3,7 +3,15 @@ import App from './App'
 
 vi.mock('./api/bookings', () => ({ listBookings: vi.fn(() => new Promise(() => {})) }))
 
-describe('App shell', () => {
+describe('App', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn(() => new Promise(() => {})))
+  })
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    window.location.hash = ''
+  })
+
   it('renders the four nav links in order with Records current', () => {
     const { container } = render(<App />)
     const nav = container.querySelector<HTMLElement>('nav#main-nav')!
@@ -19,5 +27,12 @@ describe('App shell', () => {
     expect(screen.getByRole('link', { name: 'Help' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Privacy' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Menu' })).toBeInTheDocument()
+  })
+
+  it('renders the availability page under Settings', () => {
+    window.location.hash = '#/settings'
+    render(<App />)
+    expect(screen.getByRole('heading', { name: 'My availability' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Settings', hidden: true })).toHaveAttribute('aria-current', 'page')
   })
 })
