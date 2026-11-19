@@ -1,0 +1,15 @@
+.split { display: grid; grid-template-columns: 1fr; gap: var(--space-4); align-items: start; }
+@media (min-width: 48em) { .split { grid-template-columns: 3fr 2fr; } }
+.day-row { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: var(--space-2); padding: var(--space-2) 0; border-top: var(--border-width) solid var(--color-border); }
+.day-name { min-width: 6rem; min-height: var(--control-height); display: flex; align-items: center; font-weight: var(--font-weight-bold); }
+.day-controls { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: flex-end; }
+.day-controls .field { width: 8rem; }
+.row-end { display: flex; justify-content: flex-end; margin-top: var(--space-3); }
+.slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr)); gap: var(--space-2); margin-top: var(--space-3); padding: 0; list-style: none; }
+.slots .chip { width: 100%; justify-content: center; min-height: var(--tap-target); cursor: default; }
+.dayoff-add { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: flex-end; }
+.dayoff-add .field { flex: 1 1 12rem; }
+.dayoff-item { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-2); padding: var(--space-2) 0; border-top: var(--border-width) solid var(--color-border); margin-top: var(--space-3); }
+.dayoff-item > div { display: flex; align-items: center; gap: var(--space-2); }
+.block-note { margin-bottom: var(--space-2); }
+.skeleton-gap { margin-top: var(--space-2); }

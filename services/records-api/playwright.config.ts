@@ -10,10 +10,12 @@ export default defineConfig({
     env: {
       HOST: '127.0.0.1',
       PORT: String(port),
+      RECORDS_STORE: 'memory',
       NODE_ENV: 'test',
       IDENTITY_PROVIDER: 'fake',
       SESSION_SECRET: 'e2e-secret-not-for-real-use-0123456789',
-      DATABASE_URL: process.env.DATABASE_URL ?? 'postgres://localhost:5432/records_test',
+      // Sign-in routes are only wired when a database is configured.
+      ...(process.env.DATABASE_URL ? { DATABASE_URL: process.env.DATABASE_URL } : {}),
     },
     url: `http://127.0.0.1:${port}/health`,
     reuseExistingServer: false,

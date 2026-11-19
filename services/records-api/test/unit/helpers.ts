@@ -45,7 +45,7 @@ export const sessions = createSessionService({ secret: 'test-secret-for-unit-tes
 
 export function buildTestApp(users: UserRecord[] = seededUsers, limits?: AuthDeps['limits']) {
   const repo = inMemoryUsers(users.map((u) => ({ ...u })));
-  const app = buildApp({ identity: fakeIdentity, users: repo, sessions, limits });
+  const app = buildApp({ auth: { identity: fakeIdentity, users: repo, sessions, limits } });
   const signIn = (email: string, password = 'correct') =>
     app.inject({ method: 'POST', url: '/auth/sign-in', payload: { email, password } });
   return { app, signIn };

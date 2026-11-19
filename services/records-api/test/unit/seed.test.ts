@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
-const migrationSql = readFileSync('db/migrations/001_users_roles_organizations.sql', 'utf8');
+const migrationSql = readFileSync('migrations/0002_users_roles_organizations.sql', 'utf8');
 const seedSql = readFileSync('db/seed/001_seed_accounts.sql', 'utf8');
 
 describe('schema', () => {

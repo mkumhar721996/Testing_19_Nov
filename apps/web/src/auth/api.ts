@@ -1,6 +1,6 @@
 import type { AuthResult, AuthUser, MeResult } from './types'
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL ?? ''
+const baseUrl = import.meta.env.VITE_API_BASE_URL ?? '/api'
 
 const NETWORK_ERROR = {
   ok: false as const,
