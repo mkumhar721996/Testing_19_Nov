@@ -57,7 +57,8 @@ export const bookingRoutes: FastifyPluginAsync<BookingRoutesOptions> = async (ap
   app.get('/bookings', async (request, reply) => {
     const actor = actorOrReject(request, reply);
     if (!actor) return reply;
-    await service.cancelUnpaidBookings(clock.now());
+    // A failed cancellation email must not break the listing; the sweep already cancelled the bookings.
+    await service.cancelUnpaidBookings(clock.now()).catch((error) => request.log.error(error));
     return (await repository.listByCustomer(actor)).map(toResponse);
   });
 

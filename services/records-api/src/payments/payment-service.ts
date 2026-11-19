@@ -4,6 +4,7 @@ import type {
   Booking,
   BookingRepository,
   BookingStatus,
+  ChargeResult,
   Clock,
   Mailer,
   PaymentGateway,
@@ -77,12 +78,18 @@ export class PaymentService {
     const claimed = await this.transition(booking, 'confirmed_payment_due', customerId, 'payment_started', {
       status: 'payment_in_progress',
     });
-    const result = await this.deps.gateway.charge({
-      amountMinor: computeAmountDueMinor(booking.pricing),
-      currency: booking.currency,
-      paymentToken,
-      idempotencyKey: booking.id,
-    });
+    let result: ChargeResult;
+    try {
+      result = await this.deps.gateway.charge({
+        amountMinor: computeAmountDueMinor(booking.pricing),
+        currency: booking.currency,
+        paymentToken,
+        idempotencyKey: booking.id,
+      });
+    } catch {
+      // Treat a gateway exception as a failed charge so the booking is not stranded in payment_in_progress.
+      result = { status: 'failed', reason: 'gateway_error' };
+    }
 
     if (result.status === 'succeeded') {
       return this.transition(claimed, 'payment_in_progress', customerId, 'payment_succeeded', {
@@ -110,6 +117,7 @@ export class PaymentService {
       (b) => b.payBy !== undefined && now >= b.payBy,
     );
     const cancelled: Booking[] = [];
+    const emailFailures: unknown[] = [];
     for (const booking of overdue) {
       const saved = await this.saveIfStatus(booking, 'confirmed_payment_due', 'system', 'booking_cancelled_unpaid', {
         status: 'cancelled',
@@ -118,7 +126,14 @@ export class PaymentService {
       });
       if (!saved) continue; // a payment claimed it first
       cancelled.push(saved);
-      await this.deps.mailer.sendBookingCancelledForUnpaid(saved.customerEmail, saved);
+      try {
+        await this.deps.mailer.sendBookingCancelledForUnpaid(saved.customerEmail, saved);
+      } catch (error) {
+        emailFailures.push(error); // keep cancelling the rest; surface the failures afterwards
+      }
+    }
+    if (emailFailures.length > 0) {
+      throw new AggregateError(emailFailures, `${emailFailures.length} cancellation email(s) failed to send.`);
     }
     return cancelled;
   }

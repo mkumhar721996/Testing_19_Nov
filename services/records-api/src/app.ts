@@ -19,7 +19,10 @@ export interface AppDeps {
 }
 
 // Placeholder until Entra ID sign-in is wired (ADR-0004): the user id comes from a header.
+// The header is client-controlled, so it is honoured only in development and test; anywhere
+// else no actor resolves (401) until a verified resolver is injected.
 const headerActor = (request: FastifyRequest) => {
+  if (process.env.NODE_ENV !== 'development' && process.env.NODE_ENV !== 'test') return undefined;
   const value = request.headers['x-user-id'];
   return typeof value === 'string' && value ? value : undefined;
 };

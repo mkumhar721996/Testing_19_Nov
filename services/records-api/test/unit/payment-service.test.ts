@@ -104,6 +104,32 @@ describe('PaymentService', () => {
     expect(gateway.charges).toHaveLength(0);
   });
 
+  it('releases the claim and reports payment_failed when the gateway throws', async () => {
+    const { service, repo, gateway } = makeHarness(seed());
+    await service.confirmBooking('b1', 'provider-1');
+    gateway.charge = async () => {
+      throw new Error('network down');
+    };
+    await expect(service.payBooking('b1', 'cust-1', 'tok_ok')).rejects.toMatchObject({ code: 'payment_failed' });
+    expect((await repo.find('b1'))?.status).toBe('confirmed_payment_due');
+  });
+
+  it('keeps cancelling other bookings when one cancellation email fails, then reports the failure', async () => {
+    const { service, repo, clock, mailer } = makeHarness(seed());
+    await service.confirmBooking('b1', 'provider-1');
+    await service.confirmBooking('b2', 'provider-1');
+    const send = mailer.sendBookingCancelledForUnpaid.bind(mailer);
+    mailer.sendBookingCancelledForUnpaid = async (to, booking) => {
+      if (booking.id === 'b1') throw new Error('ses down');
+      return send(to, booking);
+    };
+    clock.set(T0 + 24 * HOUR);
+    await expect(service.cancelUnpaidBookings(clock.now())).rejects.toThrow();
+    expect((await repo.find('b1'))?.status).toBe('cancelled');
+    expect((await repo.find('b2'))?.status).toBe('cancelled');
+    expect(mailer.sent).toEqual([{ to: 'sam@example.com', bookingId: 'b2' }]);
+  });
+
   it('a sweep while a charge is in flight does not cancel the booking', async () => {
     const { service, repo, clock, gateway } = makeHarness(seed());
     await service.confirmBooking('b1', 'provider-1');
