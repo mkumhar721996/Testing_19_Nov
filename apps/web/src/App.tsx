@@ -1,7 +1,25 @@
+import { AuthProvider, useAuth } from './auth/AuthContext'
+import AppHeader from './components/AppHeader'
+import SignInPage from './pages/SignInPage'
+
+function Shell() {
+  const { status, user, signOut } = useAuth()
+  if (status === 'checking') return null
+  if (status === 'signed-in' && user) {
+    return (
+      <div className="shell">
+        <AppHeader user={user} onSignOut={signOut} />
+        <main className="shell-main" />
+      </div>
+    )
+  }
+  return <SignInPage />
+}
+
 export default function App() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-50">
-      <h1 className="text-3xl font-bold text-slate-900">Web App</h1>
-    </main>
+    <AuthProvider>
+      <Shell />
+    </AuthProvider>
   )
 }

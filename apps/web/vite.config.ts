@@ -5,6 +5,12 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  server: {
+    proxy: {
+      '/auth': 'http://127.0.0.1:8011',
+      '/me': 'http://127.0.0.1:8011',
+    },
+  },
   test: {
     environment: 'jsdom',
     globals: true,
