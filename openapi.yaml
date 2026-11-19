@@ -9,6 +9,59 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+  schemas:
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+    SignInRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    Organization:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    User:
+      type: object
+      required: [id, displayName, email, role, roleLabel, organization]
+      properties:
+        id:
+          type: string
+        displayName:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [wfc_admin, fundraising_consultant, org_admin, org_staff]
+        roleLabel:
+          type: string
+          example: Org Admin
+        organization:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/Organization'
+    SignInResponse:
+      type: object
+      required: [token, user]
+      properties:
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
 security:
   - bearerAuth: []
 paths:
@@ -28,3 +81,49 @@ paths:
                   status:
                     type: string
                     example: ok
+  /auth/sign-in:
+    post:
+      summary: Sign in with email and password
+      description: Signs the user in only when the account holds exactly one of the four roles.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignInRequest'
+      responses:
+        '200':
+          description: Signed in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignInResponse'
+        '401':
+          description: Invalid credentials (code invalid_credentials), same body for unknown accounts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Account has no role (no_role) or more than one (multiple_roles); no token issued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /me:
+    get:
+      summary: The signed-in user
+      responses:
+        '200':
+          description: The user, with the role reloaded from the database
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Missing or invalid token, or the account no longer has exactly one role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
