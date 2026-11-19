@@ -1,8 +1,64 @@
-import Fastify, { type FastifyInstance } from 'fastify';
+import Fastify, { type FastifyInstance, type FastifyRequest } from 'fastify';
+import { InMemoryAuditLog } from './payments/audit.js';
+import { InMemoryBookingRepository } from './payments/booking-repository.js';
+import { systemClock } from './payments/clock.js';
+import { StubPaymentGateway } from './payments/gateway.js';
+import { LoggingMailer, SesMailer } from './payments/mailer.js';
+import { PaymentService } from './payments/payment-service.js';
+import type { AuditLog, BookingRepository, Clock, Mailer, PaymentGateway } from './payments/types.js';
+import { bookingRoutes } from './routes/bookings.js';
 import { healthRoutes } from './routes/health.js';
 
-export function buildApp(): FastifyInstance {
-  const app = Fastify({ logger: process.env.NODE_ENV !== 'test' });
+export interface AppDeps {
+  gateway: PaymentGateway;
+  mailer: Mailer;
+  repository: BookingRepository;
+  audit: AuditLog;
+  clock: Clock;
+  resolveActor: (request: FastifyRequest) => string | undefined;
+}
+
+// Placeholder until Entra ID sign-in is wired (ADR-0004): the user id comes from a header.
+const headerActor = (request: FastifyRequest) => {
+  const value = request.headers['x-user-id'];
+  return typeof value === 'string' && value ? value : undefined;
+};
+
+export function buildApp(deps: Partial<AppDeps> = {}): FastifyInstance {
+  const app = Fastify({
+    logger: process.env.NODE_ENV !== 'test',
+    // Keep extra body properties so a schema with additionalProperties: false rejects them (400).
+    ajv: { customOptions: { removeAdditional: false } },
+  });
+  const repository = deps.repository ?? new InMemoryBookingRepository();
+  const clock = deps.clock ?? systemClock;
+  const fromAddress = process.env.SES_FROM_ADDRESS;
+  const mailer =
+    deps.mailer ??
+    (fromAddress
+      ? new SesMailer(fromAddress, process.env.AWS_REGION)
+      : new LoggingMailer((message) => app.log.info(message)));
+  const service = new PaymentService({
+    repository,
+    gateway: deps.gateway ?? new StubPaymentGateway(),
+    mailer,
+    audit: deps.audit ?? new InMemoryAuditLog(),
+    clock,
+  });
+
+  app.decorate('paymentService', service);
   app.register(healthRoutes);
+  app.register(bookingRoutes, {
+    service,
+    repository,
+    clock,
+    resolveActor: deps.resolveActor ?? headerActor,
+  });
   return app;
+}
+
+declare module 'fastify' {
+  interface FastifyInstance {
+    paymentService: PaymentService;
+  }
 }

@@ -15,7 +15,6 @@ components:
       auth:
         scheme: jwt
         idp: comp_identity_provider
-      status: planned
       evidence: 'Human: ''Single REST API, no gateway'''
     - to: comp_identity_provider
       interaction: sync
