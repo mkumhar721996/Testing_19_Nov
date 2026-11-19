@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "engines": {"node": "22"},
+  "engines": {
+    "node": "22"
+  },
   "packageManager": "pnpm@12.9.1",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
@@ -15,6 +17,7 @@
     "devloop": "tsc --noEmit && vitest run"
   },
   "dependencies": {
+    "@fastify/multipart": "^9.4.0",
     "fastify": "^5.2.0"
   },
   "devDependencies": {

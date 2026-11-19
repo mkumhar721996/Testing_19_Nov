@@ -4,6 +4,39 @@ info:
   title: Records API (comp_records_api)
   version: 0.1.0
 components:
+  parameters:
+    ProviderId: { name: id, in: path, required: true, schema: { type: string } }
+  schemas:
+    PublicProfile:
+      type: object
+      required: [id, displayName]
+      properties:
+        id: { type: string }
+        displayName: { type: string }
+        photoUrl: { type: string }
+        bio: { type: string }
+    PendingSubmission:
+      type: object
+      properties:
+        bio: { type: string }
+        hasPhoto: { type: boolean }
+        submittedAt: { type: string, format: date-time }
+    DocumentMeta:
+      type: object
+      properties:
+        type: { type: string, enum: [licence, insurance] }
+        fileName: { type: string }
+        uploadedAt: { type: string, format: date-time }
+        status: { type: string, enum: [awaiting-review] }
+    ReviewView:
+      type: object
+      properties:
+        id: { type: string }
+        displayName: { type: string }
+        pending: { $ref: '#/components/schemas/PendingSubmission' }
+        documents:
+          type: array
+          items: { $ref: '#/components/schemas/DocumentMeta' }
   securitySchemes:
     bearerAuth:
       type: http
@@ -28,3 +61,121 @@ paths:
                   status:
                     type: string
                     example: ok
+  /providers/{id}:
+    get:
+      summary: Customer view of a provider (approved fields only)
+      security: []
+      parameters: [{ $ref: '#/components/parameters/ProviderId' }]
+      responses:
+        '200':
+          description: Display name, and photo and bio when approved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PublicProfile' }
+        '404': { description: Unknown provider }
+  /providers/{id}/photo:
+    get:
+      summary: Approved photo bytes
+      security: []
+      parameters: [{ $ref: '#/components/parameters/ProviderId' }]
+      responses:
+        '200': { description: Image bytes }
+        '404': { description: No approved photo }
+  /me/profile:
+    get:
+      summary: Signed-in provider's live, pending and document data (provider role)
+      responses:
+        '200':
+          description: Own profile
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReviewView' }
+        '401': { description: Not signed in }
+        '403': { description: Not a provider }
+  /me/profile/display-name:
+    put:
+      summary: Save display name, live at once (provider role)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [displayName]
+              properties:
+                displayName: { type: string, minLength: 1, maxLength: 80 }
+      responses:
+        '200': { description: Saved }
+        '400': { description: Invalid name }
+  /me/profile/submissions:
+    post:
+      summary: Submit a new photo and/or bio for admin review; replaces any pending submission (provider role)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                bio: { type: string, maxLength: 300 }
+                photo: { type: string, format: binary, description: JPG or PNG up to 5 MB }
+      responses:
+        '202': { description: Awaiting review }
+        '400': { description: Nothing to submit, or invalid file }
+  /me/documents:
+    post:
+      summary: Upload a licence or insurance document; replaces the same type (provider role)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [type, file]
+              properties:
+                type: { type: string, enum: [licence, insurance] }
+                file: { type: string, format: binary, description: PDF, JPG or PNG up to 10 MB }
+      responses:
+        '201': { description: Uploaded }
+        '400': { description: Unsupported or missing file }
+  /admin/providers/{id}/review:
+    get:
+      summary: Documents (latest per type), live version and pending submission (admin role)
+      parameters: [{ $ref: '#/components/parameters/ProviderId' }]
+      responses:
+        '200':
+          description: Review data
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReviewView' }
+        '403': { description: Not an admin }
+  /admin/providers/{id}/documents/{type}:
+    get:
+      summary: Document bytes (admin role)
+      parameters:
+        - { $ref: '#/components/parameters/ProviderId' }
+        - { name: type, in: path, required: true, schema: { type: string, enum: [licence, insurance] } }
+      responses:
+        '200': { description: File bytes }
+        '404': { description: No such document }
+  /admin/providers/{id}/submission/photo:
+    get:
+      summary: Pending photo bytes (admin role)
+      parameters: [{ $ref: '#/components/parameters/ProviderId' }]
+      responses:
+        '200': { description: Image bytes }
+        '404': { description: No pending photo }
+  /admin/providers/{id}/submission/approve:
+    post:
+      summary: Approve the pending submission (admin role)
+      parameters: [{ $ref: '#/components/parameters/ProviderId' }]
+      responses:
+        '200': { description: Approved }
+        '409': { description: Nothing is pending }
+  /admin/providers/{id}/submission/reject:
+    post:
+      summary: Reject the pending submission (admin role)
+      parameters: [{ $ref: '#/components/parameters/ProviderId' }]
+      responses:
+        '200': { description: Rejected }
+        '409': { description: Nothing is pending }
