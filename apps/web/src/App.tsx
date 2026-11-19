@@ -1,7 +1,10 @@
+import { WatchlistPanel } from './watchlist/WatchlistPanel'
+
 export default function App() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-50">
-      <h1 className="text-3xl font-bold text-slate-900">Web App</h1>
+    <main className="container stack">
+      <h1>Stock market dashboard</h1>
+      <WatchlistPanel />
     </main>
   )
 }

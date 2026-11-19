@@ -9,6 +9,30 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+  schemas:
+    WatchlistTicker:
+      type: object
+      required: [symbol, createdAt]
+      properties:
+        symbol:
+          type: string
+          example: AAPL
+        createdAt:
+          type: string
+          format: date-time
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              enum: [invalid_symbol, duplicate_symbol]
+            message:
+              type: string
 security:
   - bearerAuth: []
 paths:
@@ -28,3 +52,51 @@ paths:
                   status:
                     type: string
                     example: ok
+  /watchlist:
+    get:
+      summary: List the watchlist, oldest ticker first
+      responses:
+        '200':
+          description: The tickers on the watchlist
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [tickers]
+                properties:
+                  tickers:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WatchlistTicker'
+    post:
+      summary: Add a ticker to the watchlist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [symbol]
+              properties:
+                symbol:
+                  type: string
+                  example: AAPL
+      responses:
+        '201':
+          description: The ticker was added (symbol is stored trimmed and uppercase)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WatchlistTicker'
+        '400':
+          description: The symbol is missing or not valid (1 to 5 letters, optional . or - and 1 to 2 letters)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: The symbol is already on the watchlist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
