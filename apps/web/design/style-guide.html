@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Records — style guide</title>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="prototype-utils.css">
+  <style>
+    .sg-page { max-width: var(--content-max-width); margin-inline: auto; padding: var(--space-4) var(--space-3); display: flex; flex-direction: column; gap: var(--space-5); }
+    .sg-section > h2 { padding-bottom: var(--space-2); margin-bottom: var(--space-3); border-bottom: var(--border-width) solid var(--color-border); }
+    .sg-sub { margin: var(--space-3) 0 var(--space-2); color: var(--color-fg-muted); font-size: var(--font-size-sm); font-weight: var(--font-weight-bold); }
+    .sg-swatch { display: flex; flex-direction: column; border: var(--border-width) solid var(--color-border); border-radius: var(--radius-md); overflow: hidden; font-size: var(--font-size-sm); }
+    .sg-chip { height: var(--space-6); border-bottom: var(--border-width) solid var(--color-border); }
+    .sg-meta { padding: var(--space-2); }
+    .sg-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); padding: var(--space-1) 0; font-size: var(--font-size-sm); }
+    .sg-row code { min-width: 12em; }
+    .sg-bar { height: var(--space-3); background: var(--color-primary); border-radius: var(--radius-sm); }
+    .sg-box { width: var(--space-6); height: var(--space-6); background: var(--color-bg-subtle); border: var(--border-width) solid var(--color-border-strong); }
+    .sg-frame { position: relative; overflow: hidden; height: var(--sample-frame-height); border: var(--border-width) dashed var(--color-border-strong); border-radius: var(--radius-md); background: var(--color-bg-subtle); }
+    .sg-frame .backdrop, .sg-frame .modal, .sg-frame .drawer, .sg-frame .toast { position: absolute; }
+    .sg-pad { padding: var(--space-4) var(--space-3) var(--space-2); }
+    .sg-dd-open { min-height: calc(var(--control-height) * 4); }
+  </style>
+</head>
+<body>
+<div class="sg-page">
+  <header>
+    <h1>Records — style guide</h1>
+    <p class="text-muted">Live render of tokens, components and UI guidelines. The <a href="app-shell.html">app shell</a> is reviewed alongside.</p>
+  </header>
+
+  <!-- ===================== TOKENS ===================== -->
+  <section class="sg-section">
+    <h2>Colour tokens</h2>
+    <div class="grid">
+      <div class="sg-swatch"><div class="sg-chip" style="background:var(--color-fg)"></div><div class="sg-meta"><code>color-fg</code><br>Default text</div></div>
+      <div class="sg-swatch"><div class="sg-chip" style="background:var(--color-fg-muted)"></div><div class="sg-meta"><code>color-fg-muted</code><br>Secondary text</div></div>
+      <div class="sg-swatch"><div class="sg-chip" style="background:var(--color-bg)"></div><div class="sg-meta"><code>color-bg</code><br>Page background</div></div>
+      <div class="sg-swatch"><div class="sg-chip" style="background:var(--color-bg-subtle)"></div><div class="sg-meta"><code>color-bg-subtle</code><br>Quiet fills</div></div>
+      <div class="sg-swatch"><div class="sg-chip" style="background:var(--color-border)"></div><div class="sg-meta"><code>color-border</code><br>Decorative borders</div></div>
+      <div class="sg-swatch"><div class="sg-chip" style="background:var(--color-border-strong)"></div><div class="sg-meta"><code>color-border-strong</code><br>Control borders</div></div>
+      <div class="sg-swatch"><div class="sg-chip" style="background:var(--color-primary)"></div><div class="sg-meta"><code>color-primary</code><br>Primary action</div></div>
+      <div class="sg-swatch"><div class="sg-chip" style="background:var(--color-primary-hover)"></div><div class="sg-meta"><code>color-primary-hover</code><br>Hover, focus ring</div></div>
+      <div class="sg-swatch"><div class="sg-chip" style="background:var(--color-on-primary)"></div><div class="sg-meta"><code>color-on-primary</code><br>Text on primary</div></div>
+      <div class="sg-swatch"><div class="sg-chip" style="background:var(--color-danger)"></div><div class="sg-meta"><code>color-danger</code><br>Destructive</div></div>
+      <div class="sg-swatch"><div class="sg-chip" style="background:var(--color-danger-hover)"></div><div class="sg-meta"><code>color-danger-hover</code><br>Danger hover/text</div></div>
+      <div class="sg-swatch"><div class="sg-chip" style="background:var(--color-on-danger)"></div><div class="sg-meta"><code>color-on-danger</code><br>Text on danger</div></div>
+      <div class="sg-swatch"><div class="sg-chip" style="background:var(--color-danger-bg)"></div><div class="sg-meta"><code>color-danger-bg</code><br>Danger surface</div></div>
+      <div class="sg-swatch"><div class="sg-chip" style="background:var(--color-success-fg)"></div><div class="sg-meta"><code>color-success-fg</code><br>Success text</div></div>
+      <div class="sg-swatch"><div class="sg-chip" style="background:var(--color-success-bg)"></div><div class="sg-meta"><code>color-success-bg</code><br>Success surface</div></div>
+      <div class="sg-swatch"><div class="sg-chip" style="background:var(--color-warning-fg)"></div><div class="sg-meta"><code>color-warning-fg</code><br>Warning text</div></div>
+      <div class="sg-swatch"><div class="sg-chip" style="background:var(--color-warning-bg)"></div><div class="sg-meta"><code>color-warning-bg</code><br>Warning surface</div></div>
+      <div class="sg-swatch"><div class="sg-chip" style="background:var(--color-info-fg)"></div><div class="sg-meta"><code>color-info-fg</code><br>Info text</div></div>
+      <div class="sg-swatch"><div class="sg-chip" style="background:var(--color-info-bg)"></div><div class="sg-meta"><code>color-info-bg</code><br>Info surface</div></div>
+    </div>
+    <p class="sg-sub">Text pairing</p>
+    <div class="cluster">
+      <span style="background:var(--color-bg);color:var(--color-fg);padding:var(--space-2) var(--space-3);border:var(--border-width) solid var(--color-border)">color-fg on color-bg</span>
+      <span style="background:var(--color-bg-subtle);color:var(--color-fg-muted);padding:var(--space-2) var(--space-3)">color-fg-muted on color-bg-subtle</span>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Spacing, radius and sizing tokens</h2>
+    <p class="sg-sub">Spacing</p>
+    <div class="sg-row"><code>space-1</code><div class="sg-bar" style="width:var(--space-1)"></div></div>
+    <div class="sg-row"><code>space-2</code><div class="sg-bar" style="width:var(--space-2)"></div></div>
+    <div class="sg-row"><code>space-3</code><div class="sg-bar" style="width:var(--space-3)"></div></div>
+    <div class="sg-row"><code>space-4</code><div class="sg-bar" style="width:var(--space-4)"></div></div>
+    <div class="sg-row"><code>space-5</code><div class="sg-bar" style="width:var(--space-5)"></div></div>
+    <div class="sg-row"><code>space-6</code><div class="sg-bar" style="width:var(--space-6)"></div></div>
+    <p class="sg-sub">Radius</p>
+    <div class="cluster cluster-lg">
+      <div class="stack-sm stack"><div class="sg-box" style="border-radius:var(--radius-sm)"></div><code>radius-sm</code></div>
+      <div class="stack-sm stack"><div class="sg-box" style="border-radius:var(--radius-md)"></div><code>radius-md</code></div>
+      <div class="stack-sm stack"><div class="sg-box" style="border-radius:var(--radius-lg)"></div><code>radius-lg</code></div>
+      <div class="stack-sm stack"><div class="sg-box" style="border-radius:var(--radius-full)"></div><code>radius-full</code></div>
+    </div>
+    <p class="sg-sub">Border widths</p>
+    <div class="sg-row"><code>border-width</code><div class="sg-box" style="border-width:var(--border-width)"></div><code>border-width-strong</code><div class="sg-box" style="border-width:var(--border-width-strong)"></div></div>
+    <p class="sg-sub">Control, component and layout sizes</p>
+    <div class="sg-row"><code>control-height-sm</code><div class="sg-bar" style="height:var(--control-height-sm);width:var(--space-5)"></div></div>
+    <div class="sg-row"><code>control-height</code><div class="sg-bar" style="height:var(--control-height);width:var(--space-5)"></div></div>
+    <div class="sg-row"><code>control-height-lg</code><div class="sg-bar" style="height:var(--control-height-lg);width:var(--space-5)"></div></div>
+    <div class="sg-row"><code>tap-target</code><div class="sg-bar" style="height:var(--tap-target);width:var(--tap-target)"></div></div>
+    <div class="sg-row"><code>check-size</code><div class="sg-bar" style="height:var(--check-size);width:var(--check-size)"></div></div>
+    <div class="sg-row"><code>switch-width / switch-height / switch-thumb</code><div class="sg-bar" style="height:var(--switch-height);width:var(--switch-width)"></div><div class="sg-bar" style="height:var(--switch-thumb);width:var(--switch-thumb)"></div></div>
+    <div class="sg-row"><code>avatar-size</code><div class="sg-bar" style="height:var(--avatar-size);width:var(--avatar-size)"></div></div>
+    <div class="sg-row"><code>spinner-size</code><div class="sg-bar" style="height:var(--spinner-size);width:var(--spinner-size)"></div></div>
+    <div class="sg-row"><code>skeleton-height</code><div class="sg-bar" style="height:var(--skeleton-height);width:var(--space-6)"></div></div>
+    <div class="sg-row"><code>menu-min-width</code><div class="sg-bar" style="max-width:100%;width:var(--menu-min-width)"></div></div>
+    <div class="sg-row"><code>modal-width</code><div class="sg-bar" style="max-width:100%;width:var(--modal-width)"></div></div>
+    <div class="sg-row"><code>drawer-width</code><div class="sg-bar" style="max-width:100%;width:var(--drawer-width)"></div></div>
+    <div class="sg-row"><code>toast-width</code><div class="sg-bar" style="max-width:100%;width:var(--toast-width)"></div></div>
+    <div class="sg-row"><code>tooltip-max-width</code><div class="sg-bar" style="max-width:100%;width:var(--tooltip-max-width)"></div></div>
+    <div class="sg-row"><code>grid-min</code><div class="sg-bar" style="max-width:100%;width:var(--grid-min)"></div></div>
+    <div class="sg-row"><code>content-max-width</code><div class="sg-bar" style="max-width:100%;width:var(--content-max-width)"></div></div>
+    <div class="sg-row"><code>sample-frame-height</code><span class="text-muted">sets the height of the dashed overlay frames below</span></div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Typography and other tokens</h2>
+    <div class="stack-sm stack">
+      <div class="sg-row"><code>font-size-sm</code><span style="font-size:var(--font-size-sm)">Records are listed here</span></div>
+      <div class="sg-row"><code>font-size-md</code><span style="font-size:var(--font-size-md)">Records are listed here</span></div>
+      <div class="sg-row"><code>font-size-lg</code><span style="font-size:var(--font-size-lg)">Records are listed here</span></div>
+      <div class="sg-row"><code>font-size-xl</code><span style="font-size:var(--font-size-xl)">Records are listed here</span></div>
+      <div class="sg-row"><code>font-family-sans</code><span style="font-family:var(--font-family-sans)">The quick brown fox 0123456789</span></div>
+      <div class="sg-row"><code>font-family-mono</code><span style="font-family:var(--font-family-mono)">REC-0042 2026-11-19</span></div>
+      <div class="sg-row"><code>font-weight-regular</code><span style="font-weight:var(--font-weight-regular)">Regular weight</span></div>
+      <div class="sg-row"><code>font-weight-medium</code><span style="font-weight:var(--font-weight-medium)">Medium weight</span></div>
+      <div class="sg-row"><code>font-weight-bold</code><span style="font-weight:var(--font-weight-bold)">Bold weight</span></div>
+      <div class="sg-row"><code>line-height-base</code><span style="line-height:var(--line-height-base);max-width:24em">Body copy uses the base line height so that longer paragraphs stay comfortable to read across several lines.</span></div>
+      <div class="sg-row"><code>line-height-tight</code><span style="line-height:var(--line-height-tight);max-width:24em">Headings and controls use the tight line height so that wrapped titles stay compact across several lines.</span></div>
+      <div class="sg-row"><code>opacity-disabled</code><span style="opacity:var(--opacity-disabled)">Disabled sample</span></div>
+      <div class="sg-row"><code>opacity-backdrop</code><div class="sg-box" style="background:var(--color-fg);opacity:var(--opacity-backdrop)"></div></div>
+      <div class="sg-row"><code>motion-spin</code><span class="spinner"></span><span class="text-muted">seconds per turn</span></div>
+      <div class="sg-row"><code>z-dropdown</code><code>z-backdrop</code><code>z-overlay</code><span class="text-muted">stacking order: dropdown, then backdrop, then overlay</span></div>
+    </div>
+    <p class="sg-sub">Component alias tokens</p>
+    <div class="cluster">
+      <button class="btn" style="background:var(--button-primary-background);color:var(--button-primary-color);border-color:var(--button-primary-border)">button.primary.*</button>
+      <button class="btn" style="background:var(--button-secondary-background);color:var(--button-secondary-color);border-color:var(--button-secondary-border)">button.secondary.*</button>
+      <button class="btn" style="background:transparent;color:var(--button-ghost-color);border-color:transparent">button.ghost.*</button>
+      <button class="btn" style="background:var(--button-danger-background);color:var(--button-danger-color);border-color:var(--button-danger-border)">button.danger.*</button>
+      <span class="text-sm text-muted">button.*.background-hover, button.default.radius / height / padding-x</span>
+    </div>
+    <div class="card" style="margin-top:var(--space-3)">card.default.* — background, border, color, radius, padding</div>
+  </section>
+
+  <!-- ===================== COMPONENTS ===================== -->
+  <section class="sg-section">
+    <h2>Layout helpers</h2>
+    <p class="sg-sub">.stack, .stack-sm, .stack-lg</p>
+    <div class="grid">
+      <div class="stack"><div class="card">stack</div><div class="card">stack</div></div>
+      <div class="stack stack-sm"><div class="card">stack-sm</div><div class="card">stack-sm</div></div>
+      <div class="stack stack-lg"><div class="card">stack-lg</div><div class="card">stack-lg</div></div>
+    </div>
+    <p class="sg-sub">.cluster, .cluster-lg, .cluster-between</p>
+    <div class="cluster"><span class="badge">one</span><span class="badge">two</span><span class="badge">three</span></div>
+    <div class="cluster cluster-lg" style="margin-top:var(--space-2)"><span class="badge">one</span><span class="badge">two</span><span class="badge">three</span></div>
+    <div class="cluster cluster-between" style="margin-top:var(--space-2)"><span class="badge">left</span><span class="badge">right</span></div>
+    <p class="sg-sub">.grid</p>
+    <div class="grid"><div class="card">grid cell</div><div class="card">grid cell</div><div class="card">grid cell</div></div>
+    <p class="sg-sub">.container, .text-muted, .text-sm, .text-bold, .mono, .visually-hidden</p>
+    <div class="container card"><span class="text-muted">text-muted</span> · <span class="text-sm">text-sm</span> · <span class="text-bold">text-bold</span> · <span class="mono">mono</span> · <span class="visually-hidden">visually-hidden (invisible)</span>container</div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Buttons</h2>
+    <p class="sg-sub">Variants</p>
+    <div class="cluster">
+      <button class="btn btn-primary">Primary</button>
+      <button class="btn btn-secondary">Secondary</button>
+      <button class="btn btn-ghost">Ghost</button>
+      <button class="btn btn-danger">Danger</button>
+    </div>
+    <p class="sg-sub">Sizes and icon-only</p>
+    <div class="cluster">
+      <button class="btn btn-primary btn-sm">Small</button>
+      <button class="btn btn-primary">Default</button>
+      <button class="btn btn-primary btn-lg">Large</button>
+      <button class="btn btn-secondary btn-icon btn-sm" aria-label="Add">+</button>
+      <button class="btn btn-secondary btn-icon" aria-label="Add">+</button>
+      <button class="btn btn-secondary btn-icon btn-lg" aria-label="Add">+</button>
+    </div>
+    <p class="sg-sub">Disabled</p>
+    <div class="cluster">
+      <button class="btn btn-primary" disabled>Primary</button>
+      <button class="btn btn-secondary" disabled>Secondary</button>
+      <button class="btn btn-ghost" disabled>Ghost</button>
+      <button class="btn btn-danger" disabled>Danger</button>
+    </div>
+    <p class="sg-sub">Focus-visible (shown forced with .is-focus)</p>
+    <div class="cluster sg-pad">
+      <button class="btn btn-primary is-focus">Primary</button>
+      <button class="btn btn-secondary is-focus">Secondary</button>
+      <button class="btn btn-ghost is-focus">Ghost</button>
+      <button class="btn btn-danger is-focus">Danger</button>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Form controls</h2>
+    <div class="grid">
+      <div class="field"><label class="field-label" for="f1">Default</label><input class="input" id="f1" placeholder="Record title"><span class="field-hint">Hint text sits under the control.</span></div>
+      <div class="field"><label class="field-label" for="f2">Invalid</label><input class="input is-invalid" id="f2" value="31/02/2026" aria-invalid="true"><span class="field-error">Enter a valid date.</span></div>
+      <div class="field"><label class="field-label" for="f3">Disabled</label><input class="input" id="f3" value="Locked value" disabled></div>
+      <div class="field"><label class="field-label" for="f4">Textarea</label><textarea class="textarea" id="f4" placeholder="Notes"></textarea></div>
+      <div class="field"><label class="field-label" for="f5">Textarea invalid</label><textarea class="textarea is-invalid" id="f5" aria-invalid="true"></textarea><span class="field-error">Notes are required.</span></div>
+      <div class="field"><label class="field-label" for="f6">Textarea disabled</label><textarea class="textarea" id="f6" disabled>Locked</textarea></div>
+      <div class="field"><label class="field-label" for="f7">Select</label><select class="select" id="f7"><option>Open</option><option>Closed</option></select></div>
+      <div class="field"><label class="field-label" for="f8">Select invalid</label><select class="select is-invalid" id="f8" aria-invalid="true"><option>Choose…</option></select><span class="field-error">Choose a status.</span></div>
+      <div class="field"><label class="field-label" for="f9">Select disabled</label><select class="select" id="f9" disabled><option>Open</option></select></div>
+    </div>
+    <p class="sg-sub">Checkbox, radio, switch — default, checked, invalid, disabled</p>
+    <div class="cluster cluster-lg">
+      <label class="check-label"><input type="checkbox" class="checkbox"> Unchecked</label>
+      <label class="check-label"><input type="checkbox" class="checkbox" checked> Checked</label>
+      <label class="check-label"><input type="checkbox" class="checkbox is-invalid"> Invalid</label>
+      <label class="check-label"><input type="checkbox" class="checkbox" disabled> Disabled</label>
+    </div>
+    <div class="cluster cluster-lg" style="margin-top:var(--space-2)">
+      <label class="check-label"><input type="radio" name="r" class="radio"> Unselected</label>
+      <label class="check-label"><input type="radio" name="r" class="radio" checked> Selected</label>
+      <label class="check-label"><input type="radio" name="r2" class="radio is-invalid"> Invalid</label>
+      <label class="check-label"><input type="radio" name="r3" class="radio" disabled> Disabled</label>
+    </div>
+    <div class="cluster cluster-lg" style="margin-top:var(--space-2)">
+      <label class="check-label"><input type="checkbox" role="switch" class="switch"> Off</label>
+      <label class="check-label"><input type="checkbox" role="switch" class="switch" checked> On</label>
+      <label class="check-label"><input type="checkbox" role="switch" class="switch" disabled> Disabled</label>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Dropdown and menu</h2>
+    <div class="grid">
+      <div class="sg-dd-open">
+        <p class="sg-sub">.dropdown, open with a checked item</p>
+        <div class="dropdown">
+          <button class="btn btn-secondary" data-menu="dd-open" aria-expanded="true">Sort by ▾</button>
+          <div class="dropdown-menu" id="dd-open" role="menu">
+            <button class="dropdown-item" role="menuitemradio" aria-checked="true">Newest</button>
+            <button class="dropdown-item" role="menuitemradio" aria-checked="false">Oldest</button>
+            <button class="dropdown-item" role="menuitemradio" aria-checked="false" disabled>Custom (disabled)</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p class="sg-sub">.dropdown, closed ([hidden] menu)</p>
+        <div class="dropdown">
+          <button class="btn btn-secondary" data-menu="dd-closed" aria-expanded="false">Actions ▾</button>
+          <div class="dropdown-menu" id="dd-closed" role="menu" hidden><button class="dropdown-item">Edit</button></div>
+        </div>
+      </div>
+      <div>
+        <p class="sg-sub">.menu</p>
+        <div class="menu"><a class="menu-item" href="#">Profile</a><a class="menu-item" href="#">Settings</a><button class="menu-item" aria-disabled="true">Sign out (disabled)</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Tabs and accordion</h2>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true">Details</button>
+      <button class="tab" role="tab" aria-selected="false">History</button>
+      <button class="tab" role="tab" aria-selected="false" disabled>Disabled</button>
+    </div>
+    <p class="sg-sub">.accordion with .disclosure (first open)</p>
+    <div class="accordion">
+      <details class="disclosure" open><summary>Record details</summary><p>Open content area.</p></details>
+      <details class="disclosure"><summary>Audit trail</summary><p>Hidden content area.</p></details>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Card, badge, chip, avatar, divider, table</h2>
+    <div class="grid">
+      <div class="card"><div class="card-header">Open records</div><p class="text-muted">128 this week</p></div>
+      <div class="card"><div class="card-header">Closed records</div><p class="text-muted">412 this month</p></div>
+    </div>
+    <p class="sg-sub">Badges</p>
+    <div class="cluster"><span class="badge badge-neutral">Neutral</span><span class="badge badge-success">Success</span><span class="badge badge-warning">Warning</span><span class="badge badge-danger">Danger</span></div>
+    <p class="sg-sub">Chips (default, pressed)</p>
+    <div class="cluster"><button class="chip" aria-pressed="false">Open</button><button class="chip" aria-pressed="true">Mine</button></div>
+    <p class="sg-sub">Avatar</p>
+    <div class="cluster"><span class="avatar">AB</span><span class="avatar">CD</span></div>
+    <p class="sg-sub">Divider</p>
+    <hr class="divider">
+    <p class="sg-sub">Table</p>
+    <div class="table-wrap"><table class="table"><thead><tr><th>ID</th><th>Title</th><th>Status</th></tr></thead><tbody>
+      <tr><td class="mono">REC-0042</td><td>Quarterly filing</td><td><span class="badge badge-success">Done</span></td></tr>
+      <tr><td class="mono">REC-0043</td><td>Vendor contract</td><td><span class="badge badge-warning">Review</span></td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Overlays</h2>
+    <p class="text-muted text-sm">Each sample is open inside its own frame. In the product they are fixed to the viewport and hidden with <code>[hidden]</code>.</p>
+    <p class="sg-sub">.modal + .backdrop</p>
+    <div class="sg-frame">
+      <div class="backdrop"></div>
+      <div class="modal is-open" role="dialog" aria-label="Delete record">
+        <div class="modal-header">Delete record</div>
+        <div class="modal-body">This permanently removes REC-0042.</div>
+        <div class="modal-footer"><button class="btn btn-secondary">Cancel</button><button class="btn btn-danger">Delete record</button></div>
+      </div>
+    </div>
+    <p class="sg-sub">.drawer (right side)</p>
+    <div class="sg-frame">
+      <div class="drawer is-open" role="dialog" aria-label="Record details">
+        <div class="drawer-header">REC-0042</div>
+        <div class="drawer-body">Quick view of the record.</div>
+        <div class="drawer-footer"><button class="btn btn-primary">Save record</button></div>
+      </div>
+    </div>
+    <p class="sg-sub">.toast</p>
+    <div class="sg-frame"><div class="toast is-open" role="status">Record saved.</div></div>
+    <p class="sg-sub">.tooltip</p>
+    <div class="sg-pad"><span class="tooltip-anchor"><button class="btn btn-secondary">Hover target</button><span class="tooltip is-open" role="tooltip">Copies the record link</span></span></div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Feedback</h2>
+    <div class="stack">
+      <div class="alert alert-info">Info — import runs nightly.</div>
+      <div class="alert alert-success">Success — record saved.</div>
+      <div class="alert alert-warning">Warning — two records are missing dates.</div>
+      <div class="alert alert-danger">Danger — the export failed. Try again.</div>
+    </div>
+    <p class="sg-sub">Empty state</p>
+    <div class="card"><div class="empty-state"><h3>No records yet</h3><p>Create your first record to see it here.</p><button class="btn btn-primary">New record</button></div></div>
+    <p class="sg-sub">Skeleton and spinner</p>
+    <div class="stack stack-sm"><span class="skeleton" style="width:60%"></span><span class="skeleton"></span><span class="skeleton" style="width:80%"></span></div>
+    <div class="cluster" style="margin-top:var(--space-3)"><span class="spinner" role="status" aria-label="Loading"></span><span class="text-muted">Loading…</span></div>
+  </section>
+
+  <!-- ===================== UI GUIDELINES ===================== -->
+  <section class="sg-section" id="ui-guidelines">
+    <h2>UI guidelines</h2>
+    <div class="stack">
+      <h3>Navigation and information architecture</h3>
+      <ul>
+        <li><strong>Top bar only, no sidebar.</strong> The product has four destinations, so a sidebar would waste width that record tables need.</li>
+        <li><strong>Order: Records, Reports, Settings, Account</strong> (<code>data-nav-key</code>: <code>records</code>, <code>reports</code>, <code>settings</code>, <code>account</code>). Records comes first because it is the landing screen and the main daily task.</li>
+        <li><strong>Account sits last in the bar</strong> and holds sign-out; keeping it apart from the work sections stops it competing with them.</li>
+        <li><strong>Below the tablet breakpoint the links collapse behind a menu button</strong>, so the bar never overflows a phone screen.</li>
+        <li><strong>Detail and edit screens belong to Records</strong>, not new top-level items, so the nav stays at four entries.</li>
+      </ul>
+      <h3>Layout and density</h3>
+      <ul>
+        <li><strong>Moderately dense, data-first.</strong> Users scan and compare many records, so favour <code>.table</code> and compact <code>.stack</code> spacing over decorative whitespace.</li>
+        <li><strong>Page content sits inside <code>.container</code></strong> (capped by <code>content-max-width</code>) so long rows stay readable on wide screens.</li>
+        <li><strong>Breakpoints that matter: phone (375px) and tablet-up (about 768px).</strong> Below tablet, tables scroll inside <code>.table-wrap</code> and multi-column <code>.grid</code> layouts fall to one column, because records are checked on phones too.</li>
+        <li><strong>Page title is an <code>h1</code> at <code>font-size-xl</code>; sections use <code>h2</code>.</strong> One title per screen keeps orientation clear.</li>
+      </ul>
+      <h3>Component usage</h3>
+      <ul>
+        <li><strong>Table (<code>.table</code> in <code>.table-wrap</code>) for lists of records</strong>, because users compare fields across rows; <strong>card (<code>.card</code>) for a single record's summary or a dashboard metric</strong>; plain <code>.stack</code> list for short, one-line items such as activity.</li>
+        <li><strong>One <code>.btn-primary</code> per screen region</strong>; other actions use <code>.btn-secondary</code> or <code>.btn-ghost</code>, so the main action is never ambiguous.</li>
+        <li><strong><code>.btn-danger</code> only for irreversible actions, and always behind a <code>.modal</code> confirmation</strong>, to prevent accidental data loss.</li>
+        <li><strong>Forms: every control inside a <code>.field</code></strong> with <code>.field-hint</code> for format help and <code>.field-error</code> plus <code>.is-invalid</code> for errors, so messages sit next to the control they describe.</li>
+        <li><strong><code>.drawer</code> for viewing or quick-editing a record without leaving the list</strong>; <code>.modal</code> only for short confirmations or decisions, because they block the page.</li>
+        <li><strong><code>.alert</code> for persistent, page-level problems; <code>.toast</code> for brief confirmation of a completed action</strong>, so success never needs dismissing.</li>
+        <li><strong><code>.badge</code> for record status (success / warning / danger / neutral)</strong>; <code>.chip</code> for filters the user can toggle.</li>
+        <li><strong>Loading: <code>.skeleton</code> for lists and cards, <code>.spinner</code> only for in-button or short waits</strong>; <strong><code>.empty-state</code> with one primary action when a list has no records</strong>, so users know what to do next.</li>
+        <li><strong><code>.tabs</code> to switch views of the same record or report; <code>.accordion</code> for optional detail</strong>, so related content stays on one page.</li>
+      </ul>
+      <h3>Theme stance</h3>
+      <ul>
+        <li><strong>Light theme only.</strong> Records are read in bright office settings and one theme halves the contrast work; colours come from the <code>color-*</code> tokens so a dark theme can be added later by remapping them.</li>
+      </ul>
+      <h3>Voice and tone</h3>
+      <ul>
+        <li><strong>Plain, calm and direct</strong>, because users are doing routine administrative work and want no friction.</li>
+        <li><strong>Buttons are verb + object</strong> ("Save record", "Delete record"), so the outcome is clear before the click.</li>
+        <li><strong>Errors say what happened and how to fix it</strong>, without blame ("Enter a date in the format DD/MM/YYYY").</li>
+        <li><strong>Sentence case everywhere; no exclamation marks</strong>, to keep the tone professional.</li>
+      </ul>
+    </div>
+  </section>
+</div>
+</body>
+</html>
