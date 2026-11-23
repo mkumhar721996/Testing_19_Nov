@@ -2,8 +2,8 @@
 id: ADR-0002
 category: component
 title: Records API
-status: accepted
-superseded_by: null
+status: superseded
+superseded_by: ADR-0013
 component_id: comp_records_api
 responsibility: 'Single REST backend service: authentication and authorization, business
   logic for records and workflows, validation, persistence, and the API consumed by
@@ -18,11 +18,13 @@ talks_to:
   interaction: sync
   evidence: 'Human: API ''handles authentication and authorization''; Entra ID chosen'
 rule: Expose one REST API that the Web App calls directly; add no gateway or BFF.
-evidence: 'Human: ''Single REST API, no gateway'''
+evidence:
+- type: note
+  ref: 'Human: ''Single REST API, no gateway'''
 contested: true
-alternatives_considered:
-- 'GraphQL API: not chosen by the human'
-- 'REST API behind a gateway: not chosen by the human'
+alternatives:
+- option: 'GraphQL API: not chosen by the human'
+- option: 'REST API behind a gateway: not chosen by the human'
 consequences:
 - Cross-cutting edge concerns (rate limiting, WAF, throttling) must live in the API
   or the load balancer
