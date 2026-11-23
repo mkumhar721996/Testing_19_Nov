@@ -39,11 +39,11 @@ components:
     adr: ADR-0012
     stack:
       choices:
-        styling: tailwind
-        language: typescript
-        framework: react + vite
+        styling: Tailwind CSS
+        language: JavaScript/TypeScript
+        framework: React
         package_manager: pnpm
-        testing_tool_e2e: playwright
+        testing_tool_e2e: Playwright
         testing_tool_unit: vitest
       notes: database not applicable — talks to data only through the Records API
   comp_records_api:
@@ -69,6 +69,7 @@ components:
         chosen'
     - to: comp_object_storage
       interaction: sync
+      via: s3
       status: planned
       evidence: TETSING-19-NOV-STORY-018
       label: HTTPS/files
@@ -93,10 +94,10 @@ components:
     stack:
       choices:
         database: postgresql
-        language: typescript
+        language: JavaScript/TypeScript
         framework: fastify
         package_manager: pnpm
-        testing_tool_e2e: playwright
+        testing_tool_e2e: Playwright
         testing_tool_unit: vitest
       notes: styling not applicable — API only; e2e via Playwright API tests
   comp_relational_database:
@@ -136,6 +137,7 @@ components:
     name: Records Worker
     repo_ref: conn-github-32ebad80c69641869af2467b473acbcb
     kind: worker
+    directory: services/records-worker
     integrations:
     - to: comp_relational_database
       interaction: shared-storage
@@ -155,6 +157,14 @@ components:
     rule: Run scheduled and timed jobs in the Records Worker, not inside the Records
       API.
     adr: ADR-0015
+    stack:
+      choices:
+        language: python
+        package_manager: poetry
+        testing_tool_unit: pytest
+      notes: Python chosen by the human over TypeScript; database not applicable —
+        uses the Relational Database owned by the Records API; no e2e — no user-facing
+        or externally called surface
   comp_object_storage:
     name: Object Storage
     repo_ref: conn-github-32ebad80c69641869af2467b473acbcb
@@ -165,3 +175,7 @@ components:
     rule: Files live only in Object Storage and are reachable only through a Records
       API authorization check.
     adr: ADR-0016
+    stack:
+      choices:
+        managed_service: Amazon S3
+      notes: named in the architecture (assumed, matches AWS hosting)
