@@ -27,8 +27,9 @@ describe('0001_provider_availability migration', () => {
 
   it('applies the up file once and records it', async () => {
     const { client, log, applied } = stubClient();
-    expect(await runMigrations(client, dir)).toEqual(['0001_provider_availability.sql']);
-    expect(applied).toEqual(['0001_provider_availability.sql']);
+    const names = ['0001_provider_availability.sql', '0002_users_roles_organizations.sql'];
+    expect(await runMigrations(client, dir)).toEqual(names);
+    expect(applied).toEqual(names);
     expect(log).toContain('begin');
     expect(log).toContain('commit');
     expect(await runMigrations(client, dir)).toEqual([]);

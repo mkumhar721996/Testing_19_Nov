@@ -9,6 +9,7 @@ import { PaymentService } from './payments/payment-service.js';
 import type { AuditLog, BookingRepository, Clock, Mailer, PaymentGateway } from './payments/types.js';
 import { availabilityRoutes } from './routes/availability.js';
 import { bookingRoutes } from './routes/bookings.js';
+import { authRoutes, type AuthDeps } from './routes/auth.js';
 import { healthRoutes } from './routes/health.js';
 import { slotsRoutes } from './routes/slots.js';
 
@@ -22,6 +23,8 @@ export interface AppDeps {
   store: AvailabilityStore;
   catalog: ServiceCatalogPort;
   authenticate: (req: FastifyRequest) => Promise<Principal | null>;
+  /** Role sign-in; the /auth/sign-in and /me routes are registered only when provided. */
+  auth: AuthDeps;
 }
 
 // Placeholder until Entra ID sign-in is wired (ADR-0004): the user id comes from a header.
@@ -66,6 +69,7 @@ export function buildApp(deps: Partial<AppDeps> = {}): FastifyInstance {
   const { store, catalog, authenticate } = deps;
   if (store && authenticate) app.register(availabilityRoutes({ store, authenticate }));
   if (store && catalog) app.register(slotsRoutes({ store, catalog }));
+  if (deps.auth) app.register(authRoutes(deps.auth));
   return app;
 }
 
