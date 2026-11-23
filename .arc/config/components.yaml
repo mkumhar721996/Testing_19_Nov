@@ -24,6 +24,19 @@ components:
         idp: comp_identity_provider
       status: planned
       evidence: 'Human: ''Entra ID'' for sign-in'
+    zone: client
+    serves:
+    - TETSING-19-NOV-EPIC-003
+    - TETSING-19-NOV-EPIC-004
+    - TETSING-19-NOV-EPIC-005
+    - TETSING-19-NOV-EPIC-006
+    - TETSING-19-NOV-EPIC-007
+    - TETSING-19-NOV-EPIC-008
+    - TETSING-19-NOV-EPIC-009
+    - TETSING-19-NOV-EPIC-010
+    - TETSING-19-NOV-EPIC-011
+    rule: The Web App talks to backend data only through the Records API.
+    adr: ADR-0012
     stack:
       choices:
         styling: tailwind
@@ -54,12 +67,29 @@ components:
       status: planned
       evidence: 'Human: API ''handles authentication and authorization''; Entra ID
         chosen'
-    - to: external:email-provider
+    - to: comp_object_storage
       interaction: sync
-      via: http
       status: planned
-      evidence: 'recommended default, accepted by the human without review: Amazon
-        SES (on AWS)'
+      evidence: TETSING-19-NOV-STORY-018
+      label: HTTPS/files
+    - to: external:stripe-api
+      interaction: sync
+      status: planned
+      evidence: Stripe will be used for payment processing; card payments handled
+        by Stripe-hosted checkout/payment components; TETSING-19-NOV-STORY-034
+    zone: application
+    serves:
+    - TETSING-19-NOV-EPIC-003
+    - TETSING-19-NOV-EPIC-004
+    - TETSING-19-NOV-EPIC-005
+    - TETSING-19-NOV-EPIC-006
+    - TETSING-19-NOV-EPIC-007
+    - TETSING-19-NOV-EPIC-008
+    - TETSING-19-NOV-EPIC-009
+    - TETSING-19-NOV-EPIC-010
+    - TETSING-19-NOV-EPIC-011
+    rule: Expose one REST API that the Web App calls directly; add no gateway or BFF.
+    adr: ADR-0013
     stack:
       choices:
         database: postgresql
@@ -73,6 +103,10 @@ components:
     name: Relational Database
     repo_ref: conn-github-32ebad80c69641869af2467b473acbcb
     kind: managed_service
+    zone: data
+    rule: Only the Records API reads or writes the Relational Database, which runs
+      on PostgreSQL on Amazon RDS.
+    adr: ADR-0003
     stack:
       choices:
         managed_service: PostgreSQL on Amazon RDS (Multi-AZ)
@@ -87,12 +121,47 @@ components:
       - oidc
       - oauth2
       - jwt
-      flows:
-      - authorization_code_pkce
       token: jwt
-      user_store: provider
-      notes: Protocols and flow proposed (OIDC, auth code + PKCE for the browser app);
-        not yet confirmed.
+    zone: external
+    serves:
+    - TETSING-19-NOV-EPIC-003
+    - TETSING-19-NOV-EPIC-010
+    rule: All user sign-in goes through Entra ID; the Records API accepts only tokens
+      it issued.
+    adr: ADR-0014
     stack:
       choices:
         managed_service: Microsoft Entra ID
+  comp_records_worker:
+    name: Records Worker
+    repo_ref: conn-github-32ebad80c69641869af2467b473acbcb
+    kind: worker
+    integrations:
+    - to: comp_relational_database
+      interaction: shared-storage
+      via: postgresql
+      status: planned
+      evidence: separate background worker for scheduled tasks
+      label: SQL
+    - to: external:email-provider
+      interaction: sync
+      status: planned
+      evidence: background worker for notifications; TETSING-19-NOV-EPIC-007
+    zone: application
+    serves:
+    - TETSING-19-NOV-EPIC-005
+    - TETSING-19-NOV-EPIC-006
+    - TETSING-19-NOV-EPIC-007
+    rule: Run scheduled and timed jobs in the Records Worker, not inside the Records
+      API.
+    adr: ADR-0015
+  comp_object_storage:
+    name: Object Storage
+    repo_ref: conn-github-32ebad80c69641869af2467b473acbcb
+    kind: managed_service
+    zone: data
+    serves:
+    - TETSING-19-NOV-EPIC-004
+    rule: Files live only in Object Storage and are reachable only through a Records
+      API authorization check.
+    adr: ADR-0016

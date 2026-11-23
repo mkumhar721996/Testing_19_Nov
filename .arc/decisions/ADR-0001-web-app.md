@@ -2,8 +2,8 @@
 id: ADR-0001
 category: component
 title: Web App
-status: accepted
-superseded_by: null
+status: superseded
+superseded_by: ADR-0012
 component_id: comp_web_app
 responsibility: Browser UI for sign-in, profile, creating/updating/viewing records,
   search and filter, dashboards and reports, workflow status and notifications.
@@ -17,7 +17,9 @@ talks_to:
   interaction: sync
   evidence: 'Human: ''Entra ID'' for sign-in'
 rule: The Web App talks to backend data only through the Records API.
-evidence: 'Human: ''1. Web UI (Frontend)'' in system overview'
+evidence:
+- type: note
+  ref: 'Human: ''1. Web UI (Frontend)'' in system overview'
 ---
 
 ## Context
